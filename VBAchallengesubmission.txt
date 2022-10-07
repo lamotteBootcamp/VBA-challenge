@@ -1,0 +1,146 @@
+VERSION 1.0 CLASS
+BEGIN
+  MultiUse = -1  'True
+END
+Attribute VB_Name = "ThisWorkbook"
+Attribute VB_GlobalNameSpace = False
+Attribute VB_Creatable = False
+Attribute VB_PredeclaredId = True
+Attribute VB_Exposed = True
+Sub multiyearstocktest()
+
+    
+    
+'Loop through all three sheets in workbook
+'Setting up origin data
+    'Setting initial variable for holding ticker label
+    
+    
+    
+    Dim ticker As String
+    Dim i As Long
+    Dim result_row, end_row As Long
+    Dim TicketCol As Integer
+    TicketCol = 10
+    YearlyChangeCol = 11
+    percentChangeCol = 12
+    TotalVolCol = 13
+    begincol = 14
+    EndCol = 15
+    Dim ws As Worksheet
+    
+    Application.ScreenUpdating = False
+    
+    For Each ws In Worksheets
+    ws.Select
+    
+    
+    
+    Cells(1, TicketCol).Value = "Ticker"
+    Cells(1, YearlyChangeCol).Value = "Yearly Change"
+    Cells(1, percentChangeCol).Value = "Percentage Change"
+    Cells(1, TotalVolCol).Value = "Total Stock Volume"
+
+    
+   i = 2
+    end_row = Range("A2").End(xlDown).Row
+    result_row = 1
+    
+For i = 2 To end_row + 1
+    If i > end_row Then
+        ' setting the end value for the last row in the spreadsheet
+        Cells(result_row, EndCol).Value = Cells(i - 1, 6).Value
+        
+            Cells(result_row, YearlyChangeCol).Value = Cells(result_row - 1, EndCol).Value - Cells(result_row, begincol).Value
+                condformat (Cells(result_row - 1, YearlyChangeCol))
+            
+            Cells(result_row, percentChangeCol).Value = FormatPercent(Cells(result_row, YearlyChangeCol).Value / Cells(result_row, EndCol).Value)
+            
+            condformat (Cells(result_row, YearlyChangeCol))
+        ' set the yearly change
+    Else
+       ' Setting ticker result row
+        If Cells(i, 1).Value <> Cells(result_row, TicketCol) Then
+            ' move to the next result row
+            result_row = result_row + 1
+            ' set the ticker symbol
+            Cells(result_row, TicketCol).Value = Cells(i, 1).Value
+            Cells(result_row, TotalVolCol).Value = 0
+            
+            ' set the begin value
+            Cells(result_row, begincol).Value = Cells(i, 3).Value
+            If (i > 2) Then
+                ' sets the end value for the previous row
+                Cells(result_row - 1, EndCol).Value = Cells(i - 1, 6).Value
+                
+                ' set the yearly change
+                Cells(result_row - 1, YearlyChangeCol).Value = Cells(result_row - 1, EndCol).Value - Cells(result_row - 1, begincol).Value
+                condformat (Cells(result_row - 1, YearlyChangeCol))
+                
+                ' set the percentage change
+                Cells(result_row - 1, percentChangeCol).Value = FormatPercent(Cells(result_row - 1, YearlyChangeCol).Value / Cells(result_row - 1, EndCol).Value)
+                
+                
+            End If
+        
+        End If
+     
+     'set the Total
+     Cells(result_row, TotalVolCol).Value = Cells(result_row, TotalVolCol).Value + Cells(i, 7).Value
+    End If
+    
+
+
+Range("N:O").EntireColumn.Hidden = True
+
+
+Next
+
+
+Next ws
+
+Application.ScreenUpdating = True
+
+End Sub
+
+Sub condformat(destcell As Range)
+
+destcell.Select
+
+If destcell.Value < 0 Then
+
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 255
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    With Selection.Font
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+    End With
+
+Else
+
+    With Selection.Interior
+        .Pattern = xlSolid
+        .PatternColorIndex = xlAutomatic
+        .Color = 5287936
+        .TintAndShade = 0
+        .PatternTintAndShade = 0
+    End With
+    
+    With Selection.Font
+        .ThemeColor = xlThemeColorDark1
+        .TintAndShade = 0
+    End With
+End If
+
+End Sub
+
+        
+    
+
+
+
